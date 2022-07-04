@@ -1,0 +1,45 @@
+{
+  "name": "binge-traveller-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/pilotpirxie/binge-traveller-api.git",
+  "author": "pilotpirxie <10637666+pilotpirxie@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dayjs": "^1.11.3",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "joi": "^17.6.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/express-serve-static-core": "^4.17.29",
+    "@types/node": "^18.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "nodemon": "^2.0.18",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4"
+  },
+  "scripts": {
+    "prod": "node ./dist/app.js",
+    "build": "tsc",
+    "dev": "nodemon",
+    "eslint": "./node_modules/.bin/eslint .",
+    "fix": "./node_modules/.bin/eslint --fix ."
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts, html",
+    "ignore": [
+      "src/public"
+    ],
+    "exec": "ts-node ./src/app.ts --project tsconfig.json"
+  }
+}
