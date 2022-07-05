@@ -17,7 +17,8 @@ const searchSchema = {
     dateFrom: Joi.date().required(),
     dateTo: Joi.date().required(),
     days: Joi.number().min(1).max(60).required(),
-    departureAirport: Joi.string().length(3).required(),
+    originAirport: Joi.string().length(3).required(),
+    destinationAirport: Joi.string().length(3).optional().allow(null, ''),
   },
 };
 
@@ -25,16 +26,16 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
   try {
     const dateFrom = dayjs(req.body.dateFrom);
     const dateTo = dayjs(req.body.dateTo);
-    const { days, departureAirport } = req.body;
+    const { days, originAirport, destinationAirport } = req.body;
     const daysToCheck = dateTo.diff(dateFrom, 'day') - days;
 
     const trips: Trip[] = [];
 
     // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < daysToCheck; i++) {
+    for (let i = 0; i < daysToCheck + 1; i++) {
       // eslint-disable-next-line no-await-in-loop
       await sleep(Math.random() * 1000);
-      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${departureAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=pl-pl&adultPaxCount=1`;
+      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${originAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=pl-pl&adultPaxCount=1${destinationAirport ? `&arrivalAirportIataCode=${destinationAirport}` : ''}`;
 
       // eslint-disable-next-line no-console
       console.log(url);
@@ -61,6 +62,11 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
             country: fare.outbound.arrivalAirport.countryName,
             airport: fare.outbound.arrivalAirport.iataCode,
             city: fare.outbound.arrivalAirport.city.name,
+          },
+          origin: {
+            country: fare.outbound.departureAirport.countryName,
+            airport: fare.outbound.departureAirport.iataCode,
+            city: fare.outbound.departureAirport.city.name,
           },
         });
       });
