@@ -1,12 +1,15 @@
 import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import bodyParser from 'body-parser';
 import { errorHandler } from './middlewares/errors';
 import searchController from './controllers/search.controller';
 
 dotenv.config();
 const port = process.env.PORT;
 const app: Express = express();
+
+app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, 'public')));
 

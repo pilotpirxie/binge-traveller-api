@@ -2,18 +2,30 @@ import 'dotenv';
 import { Router } from 'express';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import Joi from 'joi';
 import { FaresResponse, Trip } from '../types/Fares';
+import { TypedRequest } from '../types/express';
+import validation from '../middlewares/validation';
 
 const router = Router();
 
 // eslint-disable-next-line no-promise-executor-return
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-router.get('/', async (req, res, next) => {
+const searchSchema = {
+  body: {
+    dateFrom: Joi.date().required(),
+    dateTo: Joi.date().required(),
+    days: Joi.number().min(1).max(60).required(),
+    departureAirport: Joi.string().length(3).required(),
+  },
+};
+
+router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searchSchema>, res, next) => {
   try {
-    const dateFrom = dayjs('2022-07-06');
-    const dateTo = dayjs('2022-12-31');
-    const days = 1;
+    const dateFrom = dayjs(req.body.dateFrom);
+    const dateTo = dayjs(req.body.dateTo);
+    const { days, departureAirport } = req.body;
     const daysToCheck = dateTo.diff(dateFrom, 'day') - days;
 
     const trips: Trip[] = [];
@@ -22,7 +34,7 @@ router.get('/', async (req, res, next) => {
     for (let i = 0; i < daysToCheck; i++) {
       // eslint-disable-next-line no-await-in-loop
       await sleep(Math.random() * 1000);
-      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=KRK&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=pl-pl&adultPaxCount=1`;
+      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${departureAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=pl-pl&adultPaxCount=1`;
 
       // eslint-disable-next-line no-console
       console.log(url);
