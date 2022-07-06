@@ -35,7 +35,7 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
     for (let i = 0; i < daysToCheck + 1; i++) {
       // eslint-disable-next-line no-await-in-loop
       await sleep(Math.random() * 1000);
-      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${originAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=pl-pl&adultPaxCount=1${destinationAirport ? `&arrivalAirportIataCode=${destinationAirport}` : ''}`;
+      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${originAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=en-GB&adultPaxCount=1${destinationAirport ? `&arrivalAirportIataCode=${destinationAirport}` : ''}`;
 
       // eslint-disable-next-line no-console
       console.log(url);
