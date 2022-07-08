@@ -16,9 +16,10 @@ const searchSchema = {
   body: {
     dateFrom: Joi.date().required(),
     dateTo: Joi.date().required(),
-    days: Joi.number().min(1).max(60).required(),
+    days: Joi.number().min(0).max(365).required(),
     originAirport: Joi.string().length(3).required(),
-    destinationAirport: Joi.string().length(3).optional().allow(null, ''),
+    numberOfAdults: Joi.number().min(1).max(5).required(),
+    airline: Joi.string().length(3).required(),
   },
 };
 
@@ -26,7 +27,7 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
   try {
     const dateFrom = dayjs(req.body.dateFrom);
     const dateTo = dayjs(req.body.dateTo);
-    const { days, originAirport, destinationAirport } = req.body;
+    const { days, originAirport, numberOfAdults } = req.body;
     const daysToCheck = dateTo.diff(dateFrom, 'day') - days;
 
     const trips: Trip[] = [];
@@ -35,7 +36,7 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
     for (let i = 0; i < daysToCheck + 1; i++) {
       // eslint-disable-next-line no-await-in-loop
       await sleep(Math.random() * 1000);
-      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${originAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=en-GB&adultPaxCount=1${destinationAirport ? `&arrivalAirportIataCode=${destinationAirport}` : ''}`;
+      const url = `${process.env.BASE_URL}/api/farfnd/v4/roundTripFares?departureAirportIataCode=${originAirport}&outboundDepartureDateFrom=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&outboundDepartureDateTo=${dateFrom.add(i, 'days').format('YYYY-MM-DD')}&inboundDepartureDateFrom=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&inboundDepartureDateTo=${dateFrom.add(i + days, 'days').format('YYYY-MM-DD')}&market=en-GB&adultPaxCount=${numberOfAdults}`;
 
       // eslint-disable-next-line no-console
       console.log(url);
@@ -57,7 +58,6 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
             value: fare.summary.price.value,
             currency: fare.summary.price.currencyCode,
           },
-          tripDurationDays: fare.summary.tripDurationDays,
           destination: {
             country: fare.outbound.arrivalAirport.countryName,
             airport: fare.outbound.arrivalAirport.iataCode,
@@ -68,6 +68,16 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
             airport: fare.outbound.departureAirport.iataCode,
             city: fare.outbound.departureAirport.city.name,
           },
+          airline: {
+            icao: 'RYR',
+          },
+          bookingUrl: `https://www.ryanair.com/pl/pl/trip/flights/select?adults=${numberOfAdults}&dateOut=${dayjs(
+            fare.outbound.departureDate,
+          ).format('YYYY-MM-DD')}&dateIn=${dayjs(fare.inbound.departureDate).format(
+            'YYYY-MM-DD',
+          )}&isReturn=true&originIata=${fare.outbound.departureAirport.iataCode}&destinationIata=${
+            fare.outbound.arrivalAirport.iataCode
+          }`,
         });
       });
     }

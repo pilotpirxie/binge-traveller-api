@@ -30,7 +30,7 @@
     "typescript": "^4.7.4"
   },
   "scripts": {
-    "prod": "node ./dist/app.js",
+    "start": "node ./dist/app.js",
     "build": "tsc",
     "dev": "nodemon",
     "eslint": "./node_modules/.bin/eslint .",

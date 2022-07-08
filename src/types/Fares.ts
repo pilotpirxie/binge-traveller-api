@@ -77,5 +77,8 @@ export interface Trip {
     value: number;
     currency: string;
   }
-  tripDurationDays: number;
+  airline: {
+    icao: string;
+  }
+  bookingUrl: string;
 }
