@@ -72,8 +72,6 @@ router.post('/', validation(searchSchema), async (req: TypedRequest<typeof searc
       });
     });
 
-    trips.sort((a, b) => a.price.value - b.price.value);
-
     return res.json(trips);
   } catch (e) {
     return next(e);
